@@ -169,17 +169,38 @@
         font-size: 14px;
       }
       input[type="text"],
-      input[type="email"] {
+      input[type="email"],
+      select {
         padding: 12px 14px;
         border: 1px solid var(--border);
         border-radius: 8px;
         font-size: 15px;
         background: white;
         font-family: inherit;
+        width: 100%;
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
       }
-      input:focus {
+      select {
+        background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23555' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 14px center;
+        padding-right: 36px;
+      }
+      input:focus,
+      select:focus {
         outline: 2px solid var(--green);
         outline-offset: 1px;
+      }
+      .field-error {
+        color: #9a1f1f;
+        font-size: 13px;
+        margin-top: 4px;
+        display: none;
+      }
+      #city-other {
+        margin-top: 8px;
       }
       .note {
         font-size: 13px;
@@ -266,16 +287,29 @@
             il tuo comune: ti avviso appena posso controllare la tua bolletta.
             Niente spam, mai.
           </p>
-          <form id="signup-form">
+          <form id="signup-form" novalidate>
             <div>
-              <label for="city">Sono di</label><br />
+              <label for="city-select">Sono di</label><br />
+              <select id="city-select" name="city" required>
+                <option value="">Seleziona il tuo comune…</option>
+                <option value="Osimo">Osimo</option>
+                <option value="Ancona">Ancona</option>
+                <option value="Macerata">Macerata</option>
+                <option value="__other__">
+                  Altro comune (specifica sotto)…
+                </option>
+              </select>
               <input
-                id="city"
-                name="city"
+                id="city-other"
+                name="city_other"
                 type="text"
-                placeholder="Osimo, Ancona, Macerata, …"
-                required
+                placeholder="Scrivi il nome del tuo comune"
+                style="display: none"
+                autocomplete="address-level2"
               />
+              <div class="field-error" id="city-error">
+                Seleziona o specifica il tuo comune.
+              </div>
             </div>
             <div>
               <label for="email">Email</label><br />
@@ -285,7 +319,11 @@
                 type="email"
                 placeholder="tu@esempio.it"
                 required
+                autocomplete="email"
               />
+              <div class="field-error" id="email-error">
+                Inserisci un indirizzo email valido (es. nome@dominio.it).
+              </div>
             </div>
             <div>
               <button class="btn" type="submit">Iscrivimi</button>
@@ -389,16 +427,66 @@
     <script>
       // Email signup via Formspree.
       // Endpoint: https://formspree.io/f/xzdwjzzg
-      document
-        .getElementById("signup-form")
-        .addEventListener("submit", async function (e) {
+      (function () {
+        var form = document.getElementById("signup-form");
+        var citySelect = document.getElementById("city-select");
+        var cityOther = document.getElementById("city-other");
+        var cityError = document.getElementById("city-error");
+        var emailInput = document.getElementById("email");
+        var emailError = document.getElementById("email-error");
+        var successEl = document.getElementById("success-msg");
+        var submitBtn = form.querySelector('button[type="submit"]');
+        var originalBtnText = submitBtn.textContent;
+
+        // Regex: requires a non-empty local part, @, a non-empty domain, a dot,
+        // and a TLD of at least 2 characters. Blocks "a@b" and similar.
+        var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+        // Toggle the "altro" text field when the user picks "Altro" in the dropdown.
+        citySelect.addEventListener("change", function () {
+          if (citySelect.value === "__other__") {
+            cityOther.style.display = "block";
+            cityOther.setAttribute("required", "required");
+            cityOther.focus();
+          } else {
+            cityOther.style.display = "none";
+            cityOther.removeAttribute("required");
+            cityOther.value = "";
+          }
+          cityError.style.display = "none";
+        });
+
+        // Hide field errors as the user types or changes input.
+        emailInput.addEventListener("input", function () {
+          emailError.style.display = "none";
+        });
+        cityOther.addEventListener("input", function () {
+          cityError.style.display = "none";
+        });
+
+        function resolveCity() {
+          if (citySelect.value === "__other__") {
+            return cityOther.value.trim();
+          }
+          return citySelect.value;
+        }
+
+        form.addEventListener("submit", async function (e) {
           e.preventDefault();
-          var form = e.target;
-          var email = document.getElementById("email").value;
-          var city = document.getElementById("city").value;
-          var successEl = document.getElementById("success-msg");
-          var submitBtn = form.querySelector('button[type="submit"]');
-          var originalBtnText = submitBtn.textContent;
+
+          var city = resolveCity();
+          var email = emailInput.value.trim();
+          var hasError = false;
+
+          if (!city) {
+            cityError.style.display = "block";
+            hasError = true;
+          }
+          if (!EMAIL_RE.test(email)) {
+            emailError.style.display = "block";
+            hasError = true;
+          }
+          if (hasError) return;
 
           submitBtn.disabled = true;
           submitBtn.textContent = "Invio in corso…";
@@ -422,8 +510,11 @@
             successEl.style.background = "#eaf5ee";
             successEl.style.color = "var(--green-dark)";
             successEl.style.display = "block";
-            document.getElementById("email").value = "";
-            document.getElementById("city").value = "";
+            citySelect.value = "";
+            cityOther.value = "";
+            cityOther.style.display = "none";
+            cityOther.removeAttribute("required");
+            emailInput.value = "";
             submitBtn.textContent = "Iscritto ✓";
           } catch (err) {
             successEl.textContent =
@@ -435,6 +526,7 @@
             submitBtn.textContent = originalBtnText;
           }
         });
+      })();
     </script>
   </body>
 </html>
