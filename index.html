@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BollettaGiusta — Controlla se la tua TARI o IMU è sbagliata</title>
+    <meta
+      name="description"
+      content="Carica la bolletta TARI o IMU. Ti dico in 30 secondi se ti stanno facendo pagare troppo. Gratis. Paghi solo il 20% di quello che recuperi."
+    />
+    <meta
+      property="og:title"
+      content="BollettaGiusta — La tua TARI o IMU è probabilmente sbagliata"
+    />
+    <meta
+      property="og:description"
+      content="Controllo gratuito. Paghi solo se ti faccio recuperare i soldi."
+    />
+    <meta property="og:type" content="website" />
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      :root {
+        --green: #0f7a4a;
+        --green-dark: #0a5a37;
+        --bg: #fafaf7;
+        --text: #1a1a1a;
+        --muted: #555;
+        --border: #e5e5e0;
+        --card: #ffffff;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.55;
+        -webkit-font-smoothing: antialiased;
+      }
+      .wrap {
+        max-width: 720px;
+        margin: 0 auto;
+        padding: 0 20px;
+      }
+      header {
+        padding: 28px 0 12px;
+      }
+      .logo {
+        font-weight: 700;
+        font-size: 20px;
+        letter-spacing: -0.01em;
+        color: var(--green);
+      }
+      .hero {
+        padding: 48px 0 32px;
+      }
+      h1 {
+        font-size: clamp(28px, 5vw, 42px);
+        line-height: 1.15;
+        letter-spacing: -0.02em;
+        margin-bottom: 18px;
+      }
+      .sub {
+        font-size: clamp(16px, 2.4vw, 18px);
+        color: var(--muted);
+        margin-bottom: 28px;
+        max-width: 580px;
+      }
+      .cta-row {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+      .btn {
+        display: inline-block;
+        padding: 14px 22px;
+        background: var(--green);
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 16px;
+        border: 0;
+        cursor: pointer;
+        transition: background 0.15s;
+      }
+      .btn:hover {
+        background: var(--green-dark);
+      }
+      .pill {
+        display: inline-block;
+        padding: 5px 12px;
+        background: #eaf5ee;
+        color: var(--green-dark);
+        border-radius: 100px;
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 16px;
+      }
+      section {
+        padding: 40px 0;
+        border-top: 1px solid var(--border);
+      }
+      h2 {
+        font-size: clamp(22px, 3.5vw, 28px);
+        margin-bottom: 22px;
+        letter-spacing: -0.01em;
+      }
+      .steps {
+        display: grid;
+        gap: 18px;
+      }
+      .step {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 22px;
+      }
+      .step-num {
+        display: inline-block;
+        width: 28px;
+        height: 28px;
+        line-height: 28px;
+        text-align: center;
+        background: var(--green);
+        color: white;
+        border-radius: 50%;
+        font-weight: 700;
+        margin-right: 10px;
+      }
+      .step h3 {
+        display: inline;
+        font-size: 17px;
+      }
+      .step p {
+        margin-top: 10px;
+        color: var(--muted);
+      }
+      .faq-item {
+        padding: 16px 0;
+        border-bottom: 1px solid var(--border);
+      }
+      .faq-item:last-child {
+        border-bottom: 0;
+      }
+      .faq-q {
+        font-weight: 600;
+        margin-bottom: 6px;
+      }
+      .faq-a {
+        color: var(--muted);
+      }
+      form {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        max-width: 460px;
+      }
+      label {
+        font-weight: 600;
+        font-size: 14px;
+      }
+      input[type="text"],
+      input[type="email"] {
+        padding: 12px 14px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        font-size: 15px;
+        background: white;
+        font-family: inherit;
+      }
+      input:focus {
+        outline: 2px solid var(--green);
+        outline-offset: 1px;
+      }
+      .note {
+        font-size: 13px;
+        color: var(--muted);
+        margin-top: 10px;
+      }
+      footer {
+        padding: 40px 0 60px;
+        color: var(--muted);
+        font-size: 13px;
+        text-align: center;
+        border-top: 1px solid var(--border);
+        margin-top: 30px;
+      }
+      footer a {
+        color: var(--green);
+      }
+      .success {
+        display: none;
+        padding: 14px;
+        background: #eaf5ee;
+        border-radius: 8px;
+        color: var(--green-dark);
+        margin-top: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <div class="logo">BollettaGiusta</div>
+      </header>
+
+      <main>
+        <section class="hero" style="border: 0; padding-top: 20px">
+          <span class="pill">In arrivo — Osimo, Ancona, Macerata</span>
+          <h1>La tua TARI o IMU è probabilmente sbagliata.</h1>
+          <p class="sub">
+            Carichi la bolletta in 30 secondi. Ti dico io se ti stanno facendo
+            pagare troppo. Se non c'è errore, non paghi nulla. Se c'è e recuperi
+            i soldi, mi tieni il 20%.
+          </p>
+          <div class="cta-row">
+            <a href="#signup" class="btn">Avvisami al lancio</a>
+          </div>
+        </section>
+
+        <section>
+          <h2>Come funziona</h2>
+          <div class="steps">
+            <div class="step">
+              <span class="step-num">1</span>
+              <h3>Carichi la bolletta</h3>
+              <p>
+                TARI o IMU. Foto o PDF. Niente account, niente carta di credito.
+              </p>
+            </div>
+            <div class="step">
+              <span class="step-num">2</span>
+              <h3>Controllo automatico in 30 secondi</h3>
+              <p>
+                Confronto la tua bolletta con il catasto e con la delibera del
+                tuo comune. Ti dico cosa ho trovato e quanto puoi recuperare.
+              </p>
+            </div>
+            <div class="step">
+              <span class="step-num">3</span>
+              <h3>Ci pensiamo noi alla contestazione</h3>
+              <p>
+                Se c'è un errore, firmi un mandato di una pagina e ce ne
+                occupiamo noi: inviamo la contestazione al tuo comune dalla
+                nostra PEC, gestiamo la risposta, ti aggiorniamo. Se arriva il
+                rimborso, trattengo il 20%. Altrimenti, niente. Preferisci fare
+                tutto da solo? C'è anche un'opzione DIY a €19.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section id="signup">
+          <h2>Avvisami al lancio</h2>
+          <p style="color: var(--muted); margin-bottom: 22px">
+            Sto costruendo BollettaGiusta in pubblico. Lasciami la tua email e
+            il tuo comune: ti avviso appena posso controllare la tua bolletta.
+            Niente spam, mai.
+          </p>
+          <form id="signup-form">
+            <div>
+              <label for="city">Sono di</label><br />
+              <input
+                id="city"
+                name="city"
+                type="text"
+                placeholder="Osimo, Ancona, Macerata, …"
+                required
+              />
+            </div>
+            <div>
+              <label for="email">Email</label><br />
+              <input
+                id="email"
+                name="email"
+                type="email"
+                placeholder="tu@esempio.it"
+                required
+              />
+            </div>
+            <div>
+              <button class="btn" type="submit">Iscrivimi</button>
+            </div>
+            <div class="note">
+              Conforme al GDPR. Solo io leggo la tua email. La uso solo per
+              avvisarti del lancio.
+            </div>
+            <div class="success" id="success-msg">
+              Grazie. Ti scrivo io appena BollettaGiusta è online per il tuo
+              comune.
+            </div>
+          </form>
+        </section>
+
+        <section>
+          <h2>Domande frequenti</h2>
+
+          <div class="faq-item">
+            <div class="faq-q">Quanto costa?</div>
+            <div class="faq-a">
+              Niente per il controllo: vedi subito e gratis il risultato della
+              verifica. Da lì hai due scelte.<br /><br /><strong
+                >(1) Ci pensiamo noi.</strong
+              >
+              Gratis subito. Firmi un mandato di una pagina e ci occupiamo noi
+              di tutto: invio della contestazione al comune dalla nostra PEC,
+              gestione della risposta, monitoraggio del rimborso. Se il comune
+              rimborsa, trattengo il 20% di quello che hai effettivamente
+              ricevuto (massimo €299). Se non rimborsa niente, non paghi
+              niente.<br /><br /><strong>(2) Faccio da solo.</strong> €19 una
+              tantum. Ti diamo il documento completo da firmare e inviare al
+              comune. Tieni il 100% del rimborso, gestisci la pratica da solo.
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <div class="faq-q">Funziona per il mio comune?</div>
+            <div class="faq-a">
+              Al lancio: Osimo, Ancona, Macerata. Sto aggiungendo i 30 comuni
+              più popolosi d'Italia nei prossimi mesi. Lasciami la tua email e
+              ti avviso appena il tuo comune è coperto.
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <div class="faq-q">I miei dati sono al sicuro?</div>
+            <div class="faq-a">
+              Sì. Uso la tua bolletta solo per il controllo. Niente vendita di
+              dati, niente pubblicità, niente tracker. Conforme al GDPR.
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <div class="faq-q">Posso fidarmi?</div>
+            <div class="faq-a">
+              Sono uno sviluppatore italiano, lavoro da solo a questo progetto.
+              Puoi scrivermi direttamente. Trovi il contatto nel footer.
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <div class="faq-q">
+              E se l'errore è a mio sfavore (pago meno del dovuto)?
+            </div>
+            <div class="faq-a">
+              Te lo segnalo comunque, con trasparenza. Sta a te decidere cosa
+              fare.
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <div class="faq-q">BollettaGiusta è una società?</div>
+            <div class="faq-a">
+              Per ora è un progetto indipendente. Diventerà partita IVA quando
+              arriveranno i primi rimborsi.
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <div class="faq-q">Sostituisce il commercialista o l'avvocato?</div>
+            <div class="faq-a">
+              No. BollettaGiusta è uno strumento di pre-controllo che ti
+              consegna una documentazione pronta. Non è consulenza legale e non
+              rappresenta in giudizio.
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer>
+        BollettaGiusta — un progetto indipendente di Paul, sviluppatore
+        marchigiano.<br />
+        Contatto:
+        <a href="mailto:bollettagiusta@gmail.com">bollettagiusta@gmail.com</a>
+      </footer>
+    </div>
+
+    <script>
+      // Email signup — temporary: salva in localStorage e mostra un grazie.
+      // QUANDO COLLEGHI FORMSPREE: sostituisci il blocco qui sotto con il submit reale al loro endpoint.
+      document
+        .getElementById("signup-form")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+          var email = document.getElementById("email").value;
+          var city = document.getElementById("city").value;
+          // Per ora salviamo solo localmente come placeholder.
+          try {
+            localStorage.setItem(
+              "bollettagiusta_signup_" + Date.now(),
+              JSON.stringify({ email: email, city: city }),
+            );
+          } catch (err) {}
+          document.getElementById("success-msg").style.display = "block";
+          document.getElementById("email").value = "";
+          document.getElementById("city").value = "";
+        });
+    </script>
+  </body>
+</html>
