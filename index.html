@@ -387,24 +387,53 @@
     </div>
 
     <script>
-      // Email signup — temporary: salva in localStorage e mostra un grazie.
-      // QUANDO COLLEGHI FORMSPREE: sostituisci il blocco qui sotto con il submit reale al loro endpoint.
+      // Email signup via Formspree.
+      // Endpoint: https://formspree.io/f/xzdwjzzg
       document
         .getElementById("signup-form")
-        .addEventListener("submit", function (e) {
+        .addEventListener("submit", async function (e) {
           e.preventDefault();
+          var form = e.target;
           var email = document.getElementById("email").value;
           var city = document.getElementById("city").value;
-          // Per ora salviamo solo localmente come placeholder.
+          var successEl = document.getElementById("success-msg");
+          var submitBtn = form.querySelector('button[type="submit"]');
+          var originalBtnText = submitBtn.textContent;
+
+          submitBtn.disabled = true;
+          submitBtn.textContent = "Invio in corso…";
+
           try {
-            localStorage.setItem(
-              "bollettagiusta_signup_" + Date.now(),
-              JSON.stringify({ email: email, city: city }),
-            );
-          } catch (err) {}
-          document.getElementById("success-msg").style.display = "block";
-          document.getElementById("email").value = "";
-          document.getElementById("city").value = "";
+            var response = await fetch("https://formspree.io/f/xzdwjzzg", {
+              method: "POST",
+              headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                email: email,
+                comune: city,
+                _subject: "Nuova iscrizione BollettaGiusta",
+              }),
+            });
+            if (!response.ok) throw new Error();
+            successEl.textContent =
+              "Grazie. Ti scrivo io appena BollettaGiusta è online per il tuo comune.";
+            successEl.style.background = "#eaf5ee";
+            successEl.style.color = "var(--green-dark)";
+            successEl.style.display = "block";
+            document.getElementById("email").value = "";
+            document.getElementById("city").value = "";
+            submitBtn.textContent = "Iscritto ✓";
+          } catch (err) {
+            successEl.textContent =
+              "Errore nell'invio. Riprova tra qualche minuto, o scrivici direttamente all'email in fondo alla pagina.";
+            successEl.style.background = "#fdecec";
+            successEl.style.color = "#9a1f1f";
+            successEl.style.display = "block";
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalBtnText;
+          }
         });
     </script>
   </body>
